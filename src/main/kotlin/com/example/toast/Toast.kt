@@ -20,8 +20,6 @@ import javafx.scene.shape.Rectangle
 import javafx.stage.Stage
 import javafx.stage.StageStyle
 import javafx.util.Duration
-import java.awt.Toolkit
-import javax.print.attribute.standard.Media
 import kotlin.system.exitProcess
 
 
@@ -289,7 +287,7 @@ class SomeClass: Application() {
     override fun start(p0: Stage?) {
         val toast = Toast.Builder()
             .setTitle("!!!CookKing!!!")
-            .setMessage("Recipe of Day!")
+            .setMessage("Recipe of The Day!")
             .setAppName("Soup with tomato...")
             .setImage(
                 "https://images.unsplash.com/photo-1534939561126-855b8675edd7?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxzZWFyY2h8MTJ8fHNvdXB8ZW58MHx8MHx8&auto=format&fit=crop&w=500&q=60",

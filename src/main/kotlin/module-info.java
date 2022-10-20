@@ -4,6 +4,7 @@ module com.example.toast {
     requires kotlin.stdlib;
     requires java.desktop;
     requires jdk.jconsole;
+    requires javafx.media;
 
 
     opens com.example.toast to javafx.fxml;
