@@ -13,6 +13,8 @@ import javafx.scene.image.Image
 import javafx.scene.layout.BorderPane
 import javafx.scene.layout.HBox
 import javafx.scene.layout.VBox
+import javafx.scene.media.Media
+import javafx.scene.media.MediaPlayer
 import javafx.scene.paint.Color
 import javafx.scene.paint.ImagePattern
 import javafx.scene.shape.Circle
@@ -39,13 +41,16 @@ class Config {
     var button1 = Button()
     var button2 = Button()
     var flagBtn = 0
+    var flagSound = false
+    var soundFile = ""
+    lateinit var player: MediaPlayer
 }
 
 class Toast {
     private var config = Config()
     private val windows = Stage()
     private var root = BorderPane(Group())
-    private var hbox = HBox()
+    private var hBox = HBox()
 
     enum class ImageStyle {
         CIRCLE, RECTANGLE
@@ -71,10 +76,10 @@ class Toast {
 
         fun setImage(src: String, type: String): Builder {
             config.image = src
-            config.imageType = if (type == "Rect") {
-                ImageStyle.RECTANGLE
-            } else {
-                ImageStyle.CIRCLE
+            config.imageType = when (type) {
+                "Rectangle" -> ImageStyle.RECTANGLE
+                "Circle" -> ImageStyle.CIRCLE
+                else -> { ImageStyle.RECTANGLE }
             }
 
             return this
@@ -91,11 +96,20 @@ class Toast {
         }
 
         fun setAnimCoordinates(str: String): Builder {
-            when (str) {
-                "leftTop" -> setXYCoordinates(-300.0, 50.0, 100.0)
-                "rightTop" -> setXYCoordinates(300.0, 930.0, 100.0)
-                "leftBottom" -> setXYCoordinates(-300.0, 50.0, 500.0)
-                "rightBottom" -> setXYCoordinates(300.0, 930.0, 500.0)
+            if (config.flagBtn != 0) {
+                when (str) {
+                    "leftTop" -> setXYCoordinates(-400.0, 0.0, 100.0)
+                    "rightTop" -> setXYCoordinates(400.0, 895.0, 100.0)
+                    "leftBottom" -> setXYCoordinates(-400.0, 0.0, 500.0)
+                    "rightBottom" -> setXYCoordinates(400.0, 895.0, 500.0)
+                }
+            } else {
+                when (str) {
+                    "leftTop" -> setXYCoordinates(-320.0, 0.0, 100.0)
+                    "rightTop" -> setXYCoordinates(320.0, 960.0, 100.0)
+                    "leftBottom" -> setXYCoordinates(-320.0, 0.0, 500.0)
+                    "rightBottom" -> setXYCoordinates(320.0, 960.0, 500.0)
+                }
             }
 
             return this
@@ -116,11 +130,15 @@ class Toast {
                     config.flagBtn = count
                     config.button1.text = btnStr_1
                     config.button2.text = btnStr_2
-                } else -> {
-                    return this
                 }
             }
 
+            return this
+        }
+
+        fun setSoundEvent(flagSound: Boolean, str: String): Builder {
+            config.flagSound = flagSound
+            config.soundFile = str
             return this
         }
 
@@ -152,16 +170,25 @@ class Toast {
         val appName = Label(config.appName)
         vbox.children.addAll(title, message, appName)
 
-        val vBoxOfBtn = VBox()
+        val vBoxBtn = VBox()
+        val hBoxBnt1 = HBox()
+        val hBoxBtn2 = HBox()
 
         if (config.flagBtn == 1) {
             val button1 = config.button1
-            vBoxOfBtn.children.add(button1)
-        } else if (config.flagBtn == 2){
+            hBoxBnt1.children.add(button1)
+            vBoxBtn.children.add(hBoxBnt1)
+        } else if (config.flagBtn == 2) {
             val button1 = config.button1
             val button2 = config.button2
-            vBoxOfBtn.children.addAll(button1, button2)
+            hBoxBnt1.children.add(button1)
+            hBoxBtn2.children.add(button2)
+            vBoxBtn.children.addAll(hBoxBnt1, hBoxBtn2)
         }
+
+        val sound = Media(config.soundFile)
+        val player = MediaPlayer(sound)
+        config.player = player
 
         title.style = "-fx-text-fill: #F08080;" +
                 "-fx-font-size: 14pt;" +
@@ -175,12 +202,18 @@ class Toast {
                 "-fx-padding: 20px;" +
                 "-fx-line-spacing: 1.5"
 
-        vbox.style = "-fx-padding: 10px;" +
+        vbox.style = "-fx-padding: 15px 10px;" +
                 "-fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.3), 10, 0.5, 0.0, 0.0);"
 
-        hbox.style ="-fx-padding: 5px;"
+        vBoxBtn.style = "-fx-background: #FFDAB9;" +
+                "-fx-padding: 15px 10px;" +
+                "-fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.3), 10, 0.5, 0.0, 0.0);"
 
-        vBoxOfBtn.style = "-fx-padding: 20px 5px;"
+        hBoxBnt1.style = "-fx-padding: 5px;"
+
+        hBoxBtn2.style = "-fx-padding: 5px;"
+
+        hBox.style ="-fx-padding: 5px;"
 
         config.button1.style = "-fx-background-color: #D3D3D3;" +
                 "-fx-background-radius: 5px;" +
@@ -192,8 +225,8 @@ class Toast {
                 "-fx-font-size: 11pt;" +
                 "-fx-padding: 5px 10px;"
 
-        hbox.children.addAll(vbox, vBoxOfBtn)
-        root.center = hbox
+        hBox.children.addAll(vbox, vBoxBtn)
+        root.center = hBox
     }
 
     private fun imageFigure() {
@@ -209,7 +242,7 @@ class Toast {
             }
 
         iconBorder.fill = ImagePattern(Image(config.image))
-        hbox.children.add(iconBorder)
+        hBox.children.add(iconBorder)
     }
 
     private fun fadeOpenAnimation() {
@@ -217,6 +250,11 @@ class Toast {
         anim.fromValue = 0.0
         anim.toValue = config.alpha
         anim.cycleCount = 1
+
+        if (config.flagSound) {
+            config.player.play()
+        }
+
         anim.play()
     }
 
@@ -237,6 +275,11 @@ class Toast {
         anim.fromX = config.fromX
         anim.toX = config.toX
         anim.cycleCount = 1
+
+        if (config.flagSound) {
+            config.player.play()
+        }
+
         anim.play()
     }
 
@@ -288,14 +331,15 @@ class SomeClass: Application() {
         val toast = Toast.Builder()
             .setTitle("!!!CookKing!!!")
             .setMessage("Recipe of The Day!")
-            .setAppName("Soup with tomato...")
+            .setAppName("Soup with tomato")
             .setImage(
                 "https://images.unsplash.com/photo-1534939561126-855b8675edd7?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxzZWFyY2h8MTJ8fHNvdXB8ZW58MHx8MHx8&auto=format&fit=crop&w=500&q=60",
-                "Rect"
+                "Rectangle"
             )
             .setAnim("Translate")
-            .setAnimCoordinates("leftTop")
-//            .setButtons(2, "Hello!", "ByBy!")
+            .setButtons(1, "Hello!", "ByBy!")
+            .setAnimCoordinates("rightTop")
+            .setSoundEvent(true, "https://audiokaif.ru/wp-content/uploads/2022/02/1-%D0%97%D0%B2%D1%83%D0%BA-%D0%B2%D0%BA%D0%BB%D1%8E%D1%87%D0%B5%D0%BD%D0%B8%D0%B5-Macbook-1.mp3")
             .build()
         toast.start()
     }
