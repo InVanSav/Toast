@@ -38,10 +38,9 @@ class Config {
     var toX = 0.0
     var winX = 0.0
     var winY = 0.0
-    var button1 = Button()
-    var button2 = Button()
+    var buttonText1 = ""
+    var buttonText2 = ""
     var flagBtn = 0
-    var flagSound = false
     var soundFile = ""
     lateinit var player: MediaPlayer
 }
@@ -54,6 +53,14 @@ class Toast {
 
     enum class ImageStyle {
         CIRCLE, RECTANGLE
+    }
+
+    enum class AnimCoordinates {
+        LEFT_TOP, RIGHT_TOP, LEFT_BOTTOM, RIGHT_BOTTOM
+    }
+
+    enum class Animation {
+        FADE, TRANSLATE
     }
 
     class Builder {
@@ -74,41 +81,36 @@ class Toast {
             return this
         }
 
-        fun setImage(src: String, type: String): Builder {
+        fun setImage(src: String, type: ImageStyle): Builder {
             config.image = src
-            config.imageType = when (type) {
-                "Rectangle" -> ImageStyle.RECTANGLE
-                "Circle" -> ImageStyle.CIRCLE
-                else -> { ImageStyle.RECTANGLE }
+            config.imageType = type
+
+            return this
+        }
+
+        fun setAnim(anim: Animation): Builder {
+            when (anim) {
+                Animation.FADE -> config.animFlag = true
+                Animation.TRANSLATE -> config.animFlag = false
             }
 
             return this
         }
 
-        fun setAnim(str: String): Builder {
-            if (str == "Fade") {
-                config.animFlag = true
-            } else if (str == "Translate") {
-                config.animFlag = false
-            }
-
-            return this
-        }
-
-        fun setAnimCoordinates(str: String): Builder {
+        fun setAnimCoordinates(coordinates: AnimCoordinates): Builder {
             if (config.flagBtn != 0) {
-                when (str) {
-                    "leftTop" -> setXYCoordinates(-400.0, 0.0, 100.0)
-                    "rightTop" -> setXYCoordinates(400.0, 895.0, 100.0)
-                    "leftBottom" -> setXYCoordinates(-400.0, 0.0, 500.0)
-                    "rightBottom" -> setXYCoordinates(400.0, 895.0, 500.0)
+                when (coordinates) {
+                    AnimCoordinates.LEFT_TOP -> setXYCoordinates(-400.0, 0.0, 100.0)
+                    AnimCoordinates.RIGHT_TOP -> setXYCoordinates(400.0, 895.0, 100.0)
+                    AnimCoordinates.LEFT_BOTTOM -> setXYCoordinates(-400.0, 0.0, 500.0)
+                    AnimCoordinates.RIGHT_BOTTOM -> setXYCoordinates(400.0, 895.0, 500.0)
                 }
             } else {
-                when (str) {
-                    "leftTop" -> setXYCoordinates(-320.0, 0.0, 100.0)
-                    "rightTop" -> setXYCoordinates(320.0, 960.0, 100.0)
-                    "leftBottom" -> setXYCoordinates(-320.0, 0.0, 500.0)
-                    "rightBottom" -> setXYCoordinates(320.0, 960.0, 500.0)
+                when (coordinates) {
+                    AnimCoordinates.LEFT_TOP -> setXYCoordinates(-320.0, 0.0, 100.0)
+                    AnimCoordinates.RIGHT_TOP -> setXYCoordinates(320.0, 960.0, 100.0)
+                    AnimCoordinates.LEFT_BOTTOM -> setXYCoordinates(-320.0, 0.0, 500.0)
+                    AnimCoordinates.RIGHT_BOTTOM -> setXYCoordinates(320.0, 960.0, 500.0)
                 }
             }
 
@@ -125,19 +127,18 @@ class Toast {
             when (count) {
                 1 -> {
                     config.flagBtn = count
-                    config.button1.text = btnStr_1
+                    config.buttonText1 = btnStr_1
                 } 2 -> {
                     config.flagBtn = count
-                    config.button1.text = btnStr_1
-                    config.button2.text = btnStr_2
+                    config.buttonText1 = btnStr_1
+                    config.buttonText2 = btnStr_2
                 }
             }
 
             return this
         }
 
-        fun setSoundEvent(flagSound: Boolean, str: String): Builder {
-            config.flagSound = flagSound
+        fun setSoundEvent(str: String): Builder {
             config.soundFile = str
             return this
         }
@@ -175,15 +176,34 @@ class Toast {
         val hBoxBtn2 = HBox()
 
         if (config.flagBtn == 1) {
-            val button1 = config.button1
+
+            val button1 = Button(config.buttonText1)
             hBoxBnt1.children.add(button1)
             vBoxBtn.children.add(hBoxBnt1)
+
+            button1.style = "-fx-background-color: #D3D3D3;" +
+                    "-fx-background-radius: 5px;" +
+                    "-fx-font-size: 11pt;" +
+                    "-fx-padding: 5px 10px;"
+
         } else if (config.flagBtn == 2) {
-            val button1 = config.button1
-            val button2 = config.button2
+
+            val button1 = Button(config.buttonText1)
+            val button2 = Button(config.buttonText2)
             hBoxBnt1.children.add(button1)
             hBoxBtn2.children.add(button2)
             vBoxBtn.children.addAll(hBoxBnt1, hBoxBtn2)
+
+            button1.style = "-fx-background-color: #D3D3D3;" +
+                    "-fx-background-radius: 5px;" +
+                    "-fx-font-size: 11pt;" +
+                    "-fx-padding: 5px 10px;"
+
+            button2.style = "-fx-background-color: #D3D3D3;" +
+                    "-fx-background-radius: 5px;" +
+                    "-fx-font-size: 11pt;" +
+                    "-fx-padding: 5px 10px;"
+
         }
 
         val sound = Media(config.soundFile)
@@ -215,16 +235,6 @@ class Toast {
 
         hBox.style ="-fx-padding: 5px;"
 
-        config.button1.style = "-fx-background-color: #D3D3D3;" +
-                "-fx-background-radius: 5px;" +
-                "-fx-font-size: 11pt;" +
-                "-fx-padding: 5px 10px;"
-
-        config.button2.style = "-fx-background-color: #D3D3D3;" +
-                "-fx-background-radius: 5px;" +
-                "-fx-font-size: 11pt;" +
-                "-fx-padding: 5px 10px;"
-
         hBox.children.addAll(vbox, vBoxBtn)
         root.center = hBox
     }
@@ -251,7 +261,7 @@ class Toast {
         anim.toValue = config.alpha
         anim.cycleCount = 1
 
-        if (config.flagSound) {
+        if (config.soundFile.isNotEmpty()) {
             config.player.play()
         }
 
@@ -276,7 +286,7 @@ class Toast {
         anim.toX = config.toX
         anim.cycleCount = 1
 
-        if (config.flagSound) {
+        if (config.soundFile.isNotEmpty()) {
             config.player.play()
         }
 
@@ -334,12 +344,12 @@ class SomeClass: Application() {
             .setAppName("Soup with tomato")
             .setImage(
                 "https://images.unsplash.com/photo-1534939561126-855b8675edd7?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxzZWFyY2h8MTJ8fHNvdXB8ZW58MHx8MHx8&auto=format&fit=crop&w=500&q=60",
-                "Rectangle"
+                Toast.ImageStyle.RECTANGLE
             )
-            .setAnim("Translate")
-            .setButtons(1, "Hello!", "ByBy!")
-            .setAnimCoordinates("rightTop")
-            .setSoundEvent(true, "https://audiokaif.ru/wp-content/uploads/2022/02/1-%D0%97%D0%B2%D1%83%D0%BA-%D0%B2%D0%BA%D0%BB%D1%8E%D1%87%D0%B5%D0%BD%D0%B8%D0%B5-Macbook-1.mp3")
+            .setAnim(Toast.Animation.TRANSLATE)
+            .setButtons(0, "Hello!", "ByBy!")
+            .setAnimCoordinates(Toast.AnimCoordinates.RIGHT_TOP)
+            .setSoundEvent("https://audiokaif.ru/wp-content/uploads/2022/02/1-%D0%97%D0%B2%D1%83%D0%BA-%D0%B2%D0%BA%D0%BB%D1%8E%D1%87%D0%B5%D0%BD%D0%B8%D0%B5-Macbook-1.mp3")
             .build()
         toast.start()
     }
