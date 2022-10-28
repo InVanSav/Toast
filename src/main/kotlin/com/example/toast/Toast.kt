@@ -4,7 +4,7 @@ import javafx.animation.FadeTransition
 import javafx.animation.TranslateTransition
 import javafx.application.Application
 import javafx.application.Platform
-import javafx.event.Event
+import javafx.event.ActionEvent
 import javafx.event.EventHandler
 import javafx.scene.Group
 import javafx.scene.Scene
@@ -44,8 +44,8 @@ class Config {
     lateinit var player: MediaPlayer
     lateinit var button1: Button
     lateinit var button2: Button
-    lateinit var eventForButton1: Toast.Events
-    lateinit var eventForButton2: Toast.Events
+    lateinit var eventForButton1: ActionEvent
+    lateinit var eventForButton2: ActionEvent
     var buttonText1 = ""
     var buttonText2 = ""
 }
@@ -66,10 +66,6 @@ class Toast {
 
     enum class Animation {
         FADE, TRANSLATE
-    }
-
-    enum class Events {
-        SET_TEXT_TITLE, CLOSE_WINDOW
     }
 
     class Builder {
@@ -132,7 +128,7 @@ class Toast {
             config.winY = winY
         }
 
-        fun setButtons(count: Int, btnStr_1: String, btnStr_2: String, eventForButton1: Events, eventForButton2: Events): Builder {
+        fun setButtons(count: Int, btnStr_1: String, btnStr_2: String, event1: ActionEvent, event2: ActionEvent): Builder {
             when (count) {
                 1 -> {
                     config.flagBtn = count
@@ -140,7 +136,7 @@ class Toast {
                     config.buttonText1 = btnStr_1
                     config.button1 = Button(btnStr_1)
 
-                    config.eventForButton1 = eventForButton1
+                    config.eventForButton1 = event1
                 } 2 -> {
                     config.flagBtn = count
 
@@ -150,8 +146,7 @@ class Toast {
                     config.button1 = Button(btnStr_1)
                     config.button2 = Button(btnStr_2)
 
-                    config.eventForButton1 = eventForButton1
-                    config.eventForButton2 = eventForButton2
+                    config.eventForButton2 = event2
                 }
             }
 
@@ -197,6 +192,9 @@ class Toast {
 
         if (config.flagBtn == 1) {
             val button = config.button1
+            button.setOnAction {
+                config.eventForButton1
+            }
 
             hBoxBnt1.children.add(button)
             vBoxBtn.children.add(hBoxBnt1)
@@ -206,34 +204,15 @@ class Toast {
                     "-fx-font-size: 11pt;" +
                     "-fx-padding: 5px 10px;"
 
-            when (config.eventForButton1) {
-                Events.SET_TEXT_TITLE -> button.setOnAction {
-                    title.text = "Clicked"
-                }
-                Events.CLOSE_WINDOW -> button.setOnAction {
-                    windows.close()
-                }
-            }
-
         } else if (config.flagBtn == 2) {
             val button1 = config.button1
-            when (config.eventForButton1) {
-                Events.SET_TEXT_TITLE -> button1.setOnAction {
-                    title.text = "Clicked"
-                }
-                Events.CLOSE_WINDOW -> button1.setOnAction {
-                    windows.close()
-                }
+            button1.setOnAction {
+                config.eventForButton1
             }
 
             val button2 = config.button2
-            when (config.eventForButton2) {
-                Events.SET_TEXT_TITLE -> button2.setOnAction {
-                    title.text = "Clicked"
-                }
-                Events.CLOSE_WINDOW -> button2.setOnAction {
-                    windows.close()
-                }
+            button2.setOnAction {
+                config.eventForButton2
             }
 
             hBoxBnt1.children.add(button1)
@@ -394,7 +373,7 @@ class SomeClass: Application() {
                 Toast.ImageStyle.RECTANGLE
             )
             .setAnim(Toast.Animation.TRANSLATE)
-            .setButtons(2, "Hello!", "ByBy!", Toast.Events.SET_TEXT_TITLE, Toast.Events.CLOSE_WINDOW)
+            .setButtons(2, "Hello!", "ByBy!", ActionEvent(), ActionEvent())
             .setAnimCoordinates(Toast.AnimCoordinates.RIGHT_TOP)
             .setSoundEvent("https://audiokaif.ru/wp-content/uploads/2022/02/1-%D0%97%D0%B2%D1%83%D0%BA-%D0%B2%D0%BA%D0%BB%D1%8E%D1%87%D0%B5%D0%BD%D0%B8%D0%B5-Macbook-1.mp3")
             .build()
