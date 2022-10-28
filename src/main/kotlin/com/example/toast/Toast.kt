@@ -22,6 +22,7 @@ import javafx.scene.shape.Circle
 import javafx.scene.shape.Rectangle
 import javafx.stage.Stage
 import javafx.stage.StageStyle
+import javafx.stage.WindowEvent
 import javafx.util.Duration
 import kotlin.system.exitProcess
 
@@ -44,8 +45,8 @@ class Config {
     lateinit var player: MediaPlayer
     lateinit var button1: Button
     lateinit var button2: Button
-    lateinit var eventForButton1: ActionEvent
-    lateinit var eventForButton2: ActionEvent
+    lateinit var eventForButton1: EventHandler<ActionEvent>
+    lateinit var eventForButton2: EventHandler<ActionEvent>
     var buttonText1 = ""
     var buttonText2 = ""
 }
@@ -128,7 +129,12 @@ class Toast {
             config.winY = winY
         }
 
-        fun setButtons(count: Int, btnStr_1: String, btnStr_2: String, event1: ActionEvent, event2: ActionEvent): Builder {
+        fun setButtons(count: Int,
+                       btnStr_1: String,
+                       btnStr_2: String,
+                       event1: EventHandler<ActionEvent>,
+                       event2: EventHandler<ActionEvent>): Builder
+        {
             when (count) {
                 1 -> {
                     config.flagBtn = count
@@ -146,6 +152,7 @@ class Toast {
                     config.button1 = Button(btnStr_1)
                     config.button2 = Button(btnStr_2)
 
+                    config.eventForButton1 = event1
                     config.eventForButton2 = event2
                 }
             }
@@ -192,9 +199,7 @@ class Toast {
 
         if (config.flagBtn == 1) {
             val button = config.button1
-            button.setOnAction {
-                config.eventForButton1
-            }
+            button.onAction = config.eventForButton1
 
             hBoxBnt1.children.add(button)
             vBoxBtn.children.add(hBoxBnt1)
@@ -206,14 +211,10 @@ class Toast {
 
         } else if (config.flagBtn == 2) {
             val button1 = config.button1
-            button1.setOnAction {
-                config.eventForButton1
-            }
+            button1.onAction = config.eventForButton1
 
             val button2 = config.button2
-            button2.setOnAction {
-                config.eventForButton2
-            }
+            button2.onAction = config.eventForButton2
 
             hBoxBnt1.children.add(button1)
             hBoxBtn2.children.add(button2)
@@ -373,7 +374,7 @@ class SomeClass: Application() {
                 Toast.ImageStyle.RECTANGLE
             )
             .setAnim(Toast.Animation.TRANSLATE)
-            .setButtons(2, "Hello!", "ByBy!", ActionEvent(), ActionEvent())
+            .setButtons(2, "Hello!", "ByBy!", { ActionEvent.ACTION }, { ActionEvent.ACTION })
             .setAnimCoordinates(Toast.AnimCoordinates.RIGHT_TOP)
             .setSoundEvent("https://audiokaif.ru/wp-content/uploads/2022/02/1-%D0%97%D0%B2%D1%83%D0%BA-%D0%B2%D0%BA%D0%BB%D1%8E%D1%87%D0%B5%D0%BD%D0%B8%D0%B5-Macbook-1.mp3")
             .build()
