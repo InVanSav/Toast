@@ -178,6 +178,10 @@ class Toast {
         if (config.flagBtn == 1) {
 
             val button1 = Button(config.buttonText1)
+            button1.setOnAction {
+                title.text = "Clicked! Button 1"
+            }
+
             hBoxBnt1.children.add(button1)
             vBoxBtn.children.add(hBoxBnt1)
 
@@ -189,7 +193,15 @@ class Toast {
         } else if (config.flagBtn == 2) {
 
             val button1 = Button(config.buttonText1)
+            button1.setOnAction {
+                title.text = "Clicked! Button 1"
+            }
+
             val button2 = Button(config.buttonText2)
+            button2.setOnAction {
+                title.text = "Clicked! Button 2"
+            }
+
             hBoxBnt1.children.add(button1)
             hBoxBtn2.children.add(button2)
             vBoxBtn.children.addAll(hBoxBnt1, hBoxBtn2)
