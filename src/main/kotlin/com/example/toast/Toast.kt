@@ -374,7 +374,7 @@ class SomeClass: Application() {
                 Toast.ImageStyle.RECTANGLE
             )
             .setAnim(Toast.Animation.TRANSLATE)
-            .setButtons(2, "Hello!", "ByBy!", { ActionEvent.ACTION }, { ActionEvent.ACTION })
+            .setButtons(2, "Hello!", "ByBy!", {}, {})
             .setAnimCoordinates(Toast.AnimCoordinates.RIGHT_TOP)
             .setSoundEvent("https://audiokaif.ru/wp-content/uploads/2022/02/1-%D0%97%D0%B2%D1%83%D0%BA-%D0%B2%D0%BA%D0%BB%D1%8E%D1%87%D0%B5%D0%BD%D0%B8%D0%B5-Macbook-1.mp3")
             .build()
